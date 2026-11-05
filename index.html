@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Allocra</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;1,400&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one calm reading column (~720px); sample documents widen slightly to read as objects. Quiet slate ground, one blue accent. */
+:root {
+  --bg: #F4F6F7;
+  --surface: #FFFFFF;
+  --ink: #16212B;
+  --muted: #5B6670;
+  --rule: #DCE1E5;
+  --accent: #1F5C7A;
+  --accent-soft: #E4EDF2;
+  --crit: #A23B2A;
+  --warn: #8A6100;
+  --ok: #3C6E4A;
+  --f-display: "Spectral", Georgia, "Times New Roman", serif;
+  --f-body: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10161C; --surface: #18212A; --ink: #E7ECEF; --muted: #9AA5AF; --rule: #2B3641;
+    --accent: #84BAD4; --accent-soft: #1C2D38; --crit: #E58B79; --warn: #E0BC66; --ok: #8CC39B;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10161C; --surface: #18212A; --ink: #E7ECEF; --muted: #9AA5AF; --rule: #2B3641;
+  --accent: #84BAD4; --accent-soft: #1C2D38; --crit: #E58B79; --warn: #E0BC66; --ok: #8CC39B;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--f-body); font-size: 17px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+.col { max-width: 720px; margin: 0 auto; }
+
+nav { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-block: 28px; }
+.mark { font-family: var(--f-display); font-weight: 500; font-size: 22px; letter-spacing: -0.01em; color: var(--ink); text-decoration: none; }
+.mark span { color: var(--accent); }
+.navlink { font: 500 14px var(--f-body); color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--rule); padding-bottom: 2px; }
+.navlink:hover { border-color: var(--ink); }
+
+section { padding-block: 64px; border-top: 1px solid var(--rule); }
+section.hero { border-top: 0; padding-block: 40px 72px; }
+
+h1 {
+  font-family: var(--f-display); font-weight: 400; font-size: clamp(38px, 6.6vw, 56px);
+  line-height: 1.06; letter-spacing: -0.02em; margin: 0 0 22px; text-wrap: balance;
+}
+h1 em { color: var(--accent); }
+h2 { font-family: var(--f-display); font-weight: 400; font-size: clamp(26px, 4vw, 34px); line-height: 1.15; letter-spacing: -0.01em; margin: 0 0 18px; text-wrap: balance; }
+h3 { font: 600 17px/1.35 var(--f-body); margin: 0 0 4px; }
+p { margin: 0; }
+.lede { font-size: 19px; color: var(--muted); max-width: 48ch; }
+.body { color: var(--muted); max-width: 60ch; }
+.body + .body { margin-top: 14px; }
+.label { font: 500 12px/1.4 var(--f-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 14px; }
+
+.cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.btn { display: inline-block; font: 600 15px/1 var(--f-body); color: var(--bg); background: var(--ink); border: 0; border-radius: 6px; padding: 13px 18px; text-decoration: none; cursor: pointer; }
+.btn:hover { background: var(--accent); }
+.btn.ghost { color: var(--ink); background: transparent; border: 1px solid var(--rule); }
+.btn.ghost:hover { border-color: var(--ink); background: transparent; }
+
+/* stats */
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: 32px; }
+.stat { border-top: 2px solid var(--ink); padding-top: 12px; }
+.stat b { display: block; font-family: var(--f-display); font-weight: 400; font-size: 30px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stat span { display: block; font-size: 14px; color: var(--muted); margin-top: 6px; }
+.src { font: 12px/1.5 var(--f-mono); color: var(--muted); margin-top: 18px; }
+
+/* steps */
+.steps { list-style: none; margin: 28px 0 0; padding: 0; display: grid; gap: 22px; }
+.steps li { display: grid; grid-template-columns: 44px 1fr; gap: 14px; }
+.steps li > * { min-width: 0; }
+.steps .n { font: 500 13px/1.7 var(--f-mono); color: var(--accent); }
+.steps p { color: var(--muted); }
+
+/* product blocks */
+.product { display: grid; gap: 56px; margin-top: 32px; }
+.feature .text { margin-bottom: 18px; }
+.feature .text p { color: var(--muted); max-width: 58ch; }
+.doc { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 20px 22px; }
+.doc-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font: 12px/1.4 var(--f-mono); color: var(--muted); }
+.doc h4 { font-family: var(--f-display); font-weight: 500; font-size: 19px; margin: 6px 0 12px; }
+.row { display: grid; grid-template-columns: 96px 1fr; gap: 12px; padding: 10px 0; border-top: 1px solid var(--rule); }
+.row > * { min-width: 0; }
+.row p { font-family: var(--f-display); font-size: 16px; line-height: 1.5; }
+.tag { font: 600 11px/1.9 var(--f-mono); text-transform: uppercase; letter-spacing: 0.06em; }
+.tag.crit { color: var(--crit); }
+.tag.warn { color: var(--warn); }
+.tag.ok { color: var(--ok); }
+.tag.n { color: var(--muted); }
+.cite { font: 12px var(--f-mono); color: var(--accent); white-space: nowrap; }
+.qs { margin-top: 12px; padding: 14px 16px; background: var(--accent-soft); border-radius: 6px; }
+.qs ol { margin: 6px 0 0; padding-left: 20px; font-family: var(--f-display); font-size: 16px; display: grid; gap: 4px; }
+.qs .label { color: var(--accent); margin: 0; }
+
+/* audiences */
+.who { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; margin-top: 28px; }
+.who > div { min-width: 0; }
+.who p { color: var(--muted); font-size: 16px; }
+
+/* principles */
+.principles { list-style: none; margin: 24px 0 0; padding: 0; display: grid; gap: 0; }
+.principles li { display: grid; grid-template-columns: 220px 1fr; gap: 16px; padding: 14px 0; border-top: 1px solid var(--rule); }
+.principles li > * { min-width: 0; }
+.principles span { color: var(--muted); }
+
+/* founder */
+.founder p { color: var(--muted); max-width: 60ch; }
+.founder p b { color: var(--ink); font-weight: 600; }
+.founder blockquote { margin: 0 0 18px; font-family: var(--f-display); font-size: clamp(20px, 2.6vw, 24px); line-height: 1.45; max-width: 36em; }
+
+/* faq */
+.faq { margin-top: 20px; }
+.faq details { border-top: 1px solid var(--rule); padding: 14px 0; }
+.faq details:last-child { border-bottom: 1px solid var(--rule); }
+.faq summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; font-family: var(--f-mono); color: var(--muted); }
+.faq details[open] summary::after { content: "–"; }
+.faq details p { color: var(--muted); margin-top: 8px; max-width: 60ch; }
+
+/* contact */
+.contact { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 24px; }
+.email { font: 500 15px/1.4 var(--f-mono); padding: 11px 14px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); user-select: all; overflow-wrap: anywhere; }
+.status { font: 13px var(--f-mono); color: var(--muted); min-height: 1.4em; margin-top: 8px; }
+
+footer { padding-block: 32px 48px; border-top: 1px solid var(--rule); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; font: 12px/1.5 var(--f-mono); color: var(--muted); }
+
+@media (max-width: 640px) {
+  section { padding-block: 48px; }
+  .stats, .who { grid-template-columns: 1fr; gap: 20px; }
+  .principles li { grid-template-columns: 1fr; gap: 2px; }
+}
+@media (max-width: 440px) {
+  .row { grid-template-columns: 1fr; gap: 2px; }
+  .doc { padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="col">
+  <nav>
+    <a class="mark" href="#top">Allocra<span>.</span></a>
+    <a class="navlink" href="#access">Get early access</a>
+  </nav>
+
+  <section class="hero" id="top">
+    <h1>The AI due diligence team for <em>private fund investors.</em></h1>
+    <p class="lede">Allocra reads the decks, DDQs and quarterly letters private funds send, writes the diligence summary, and tells you what changed since the manager last reported.</p>
+    <div class="cta-row">
+      <a class="btn" href="#access">Get early access</a>
+      <a class="btn ghost" href="#product">See what it writes</a>
+    </div>
+  </section>
+
+  <section>
+    <p class="label">The problem</p>
+    <h2>The buyers of private funds changed. Their diligence teams didn't.</h2>
+    <p class="body">Large endowments have analysts who read every page a manager sends. The family offices, wealth advisors and smaller institutions now buying private funds usually don't. Each fund still sends hundreds of pages a year, and the history of each manager relationship lives in an inbox.</p>
+    <div class="stats">
+      <div class="stat"><b>~25%</b><span>of private markets AUM growth to 2033 expected from private wealth</span></div>
+      <div class="stat"><b>$254M</b><span>median U.S. university endowment, run by a small team</span></div>
+      <div class="stat"><b>Hours</b><span>to prepare one manager meeting by hand</span></div>
+    </div>
+    <p class="src">Sources: <a href="https://www.preqin.com/insights/research/blogs/private-capitals-big-push-for-private-wealth" target="_blank" rel="noopener">Preqin</a> · <a href="https://edge.sitecorecloud.io/nacubo1-nacubo-prd-dc8b/media/Nacubo/Documents/EndowmentFiles/2025-NCSE---Summary-and-Key-Insights-from-the-2025-NCSE-FINAL.pdf" target="_blank" rel="noopener">2025 NACUBO-Commonfund Study</a></p>
+  </section>
+
+  <section>
+    <p class="label">How it works</p>
+    <h2>Upload what the fund sends. Review what Allocra writes.</h2>
+    <ol class="steps">
+      <li><span class="n">01</span><div><h3>Upload</h3><p>Pitch decks, DDQs, quarterly letters and capital account statements, as PDFs.</p></div></li>
+      <li><span class="n">02</span><div><h3>Allocra reads and compares</h3><p>It pulls out team, strategy, terms and performance claims, and checks them against everything that manager sent before.</p></div></li>
+      <li><span class="n">03</span><div><h3>You review and decide</h3><p>A cited summary in your format, with red flags first. Your team makes the call.</p></div></li>
+    </ol>
+  </section>
+
+  <section id="product">
+    <p class="label">What it writes</p>
+    <h2>Three documents your team writes by hand today.</h2>
+    <div class="product">
+
+      <div class="feature">
+        <div class="text"><h3>Diligence summary</h3><p>For a new fund: a one-page read of the deck and DDQ with the issues worth a closer look.</p></div>
+        <div class="doc">
+          <div class="doc-head"><span>Diligence summary</span><span>Sample · fictional manager</span></div>
+          <h4>Halden Ridge Credit Fund III</h4>
+          <div class="row"><span class="tag n">Strategy</span><p>Senior secured loans to sponsor-backed middle-market companies; target 10–12% net. <span class="cite">Deck p.3</span></p></div>
+          <div class="row"><span class="tag warn">Track record</span><p>Fund II net IRR shown gross of a fee waiver; restate before comparing. <span class="cite">Deck p.14 · DDQ p.21</span></p></div>
+          <div class="row"><span class="tag crit">Key person</span><p>Two of three investment committee members joined after Fund II closed. <span class="cite">DDQ p.6</span></p></div>
+          <div class="row"><span class="tag ok">Terms</span><p>1.5% / 15% over a 7% hurdle, in line with peers in the DDQ. <span class="cite">DDQ p.30</span></p></div>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="text"><h3>What changed</h3><p>Every quarter: the new letter compared with everything the manager said before, so drift doesn't slip by.</p></div>
+        <div class="doc">
+          <div class="doc-head"><span>Monitoring note</span><span>Q3 vs. Q2 letter</span></div>
+          <h4>Halden Ridge Credit Fund III</h4>
+          <div class="row"><span class="tag crit">Team</span><p>Co-portfolio manager moved to an advisory role; no successor named. <span class="cite">Q3 p.4 · Q2 p.2</span></p></div>
+          <div class="row"><span class="tag warn">Strategy</span><p>Non-sponsored loans rose to 31% from 18%, against the sponsor-backed focus in the DDQ. <span class="cite">Q3 p.7 · DDQ p.12</span></p></div>
+          <div class="row"><span class="tag ok">Terms</span><p>Fees, hurdle and key-person terms unchanged. <span class="cite">Q3 p.11</span></p></div>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="text"><h3>Meeting prep</h3><p>Before a manager call: what they told you last time, what's changed, and what to ask.</p></div>
+        <div class="doc">
+          <div class="doc-head"><span>Meeting prep</span><span>Quarterly update call</span></div>
+          <h4>Halden Ridge Credit Fund III</h4>
+          <div class="row"><span class="tag n">Last call</span><p>Manager said non-sponsored exposure would stay under 20%. <span class="cite">Notes, Jul 2026</span></p></div>
+          <div class="qs">
+            <p class="label">Ask</p>
+            <ol>
+              <li>Who now holds final say on credit decisions?</li>
+              <li>Why did non-sponsored exposure pass the 20% you described in July?</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <p class="label">Who it's for</p>
+    <h2>Teams investing in private funds without a full research staff.</h2>
+    <div class="who">
+      <div><h3>Family offices</h3><p>Institutional-size commitments with a team of a few people.</p></div>
+      <div><h3>Wealth advisors</h3><p>RIAs adding private funds who need documented diligence for clients.</p></div>
+      <div><h3>Endowments and foundations</h3><p>Small investment offices monitoring dozens of managers.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="label">How we work</p>
+    <h2>Built to hold up in front of an investment committee.</h2>
+    <ul class="principles">
+      <li><b>Every claim cited</b><span>Each number and statement links to the page it came from.</span></li>
+      <li><b>Your documents stay yours</b><span>Allocra never trains models on customer documents.</span></li>
+      <li><b>No recommendations</b><span>Allocra does the reading and flags issues. People make investment decisions.</span></li>
+      <li><b>Your format</b><span>Summaries follow your office's template, not ours.</span></li>
+    </ul>
+  </section>
+
+  <section class="founder">
+    <p class="label">Why I'm building this</p>
+    <blockquote>I've seen how much of an investment team's week goes into reading manager documents and rewriting the same memos. Allocra gives every private fund investor that work, done well.</blockquote>
+    <p><b>John Jacobson, founder.</b> Worked on manager selection and due diligence at the Ewing Marion Kauffman Foundation and the University of Nebraska Foundation, where he built an AI meeting-prep workflow for the investment team.</p>
+  </section>
+
+  <section>
+    <p class="label">Questions</p>
+    <h2>Common questions</h2>
+    <div class="faq">
+      <details><summary>What documents can I upload?</summary><p>Pitch decks, DDQs, quarterly letters, capital account statements and your own meeting notes, as PDFs.</p></details>
+      <details><summary>Does Allocra make investment recommendations?</summary><p>No. It reads, summarizes and flags issues with citations. Your team makes every investment decision.</p></details>
+      <details><summary>Is my data used to train AI models?</summary><p>No. Customer documents are never used to train models.</p></details>
+      <details><summary>How is this different from a general AI chatbot?</summary><p>Allocra keeps each manager's full history, compares new documents against it, writes in your template, and cites every claim.</p></details>
+    </div>
+  </section>
+
+  <section id="access">
+    <p class="label">Early access</p>
+    <h2>Try Allocra on a fund you're looking at.</h2>
+    <p class="body">We're onboarding a small number of family offices, advisors and investment offices. Email with your firm and the number of managers you follow.</p>
+    <div class="contact">
+      <span class="email" id="email">johnjacobsoncollege@gmail.com</span>
+      <button class="btn" id="copy" type="button">Copy email</button>
+    </div>
+    <div class="status" id="status" aria-live="polite"></div>
+  </section>
+
+  <footer>
+    <span>© 2026 Allocra</span>
+    <span>Samples show a fictional manager.</span>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var btn = document.getElementById('copy');
+  var out = document.getElementById('status');
+  var email = document.getElementById('email');
+  function selectText() {
+    try {
+      var r = document.createRange(); r.selectNodeContents(email);
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    } catch (e) {}
+    out.textContent = 'Selected. Press Ctrl+C or Cmd+C to copy.';
+  }
+  btn.addEventListener('click', function () {
+    var text = email.textContent.trim();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { out.textContent = 'Copied'; }).catch(selectText);
+    } else { selectText(); }
+  });
+})();
+</script>
+</body>
+</html>
